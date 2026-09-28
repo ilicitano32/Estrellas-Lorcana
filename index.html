@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>¿Cuánto Lore le doy?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4ecd8; --text:#2a1d47; --muted:#6b5a8a;
+    --off-fill:#e6dcc0; --off-stroke:#b8a06a; --off-num:#8a7a55;
+    --on-a:#f7d878; --on-b:#d9a23a; --on-stroke:#a8741c; --on-num:#3a2606;
+    --glow:rgba(217,162,58,.55);
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#150e26; --text:#f4ecd8; --muted:#a898c8;
+      --off-fill:#241a3d; --off-stroke:#4b3a75; --off-num:#7d6ea3;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#150e26; --text:#f4ecd8; --muted:#a898c8;
+    --off-fill:#241a3d; --off-stroke:#4b3a75; --off-num:#7d6ea3;
+  }
+  html,body{margin:0;height:100%;}
+  body{
+    background:radial-gradient(ellipse at 50% 0%, rgba(156,95,214,.16), transparent 60%), var(--bg);
+    color:var(--text);
+    font-family:'Cinzel',Georgia,serif;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:1.6rem;padding:1.5rem;text-align:center;
+  }
+  h1{font-size:clamp(1.3rem,5vw,1.9rem);margin:0;letter-spacing:.04em;}
+  .stars{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem;max-width:640px;}
+  .star{
+    background:none;border:0;padding:0;cursor:pointer;
+    width:clamp(52px,15vw,72px);height:clamp(52px,15vw,72px);
+    transition:transform .15s ease;
+  }
+  .star:hover{transform:scale(1.12);}
+  .star:active{transform:scale(.94);}
+  .star:focus-visible{outline:2px solid var(--on-b);outline-offset:3px;border-radius:8px;}
+  .star svg{width:100%;height:100%;overflow:visible;}
+  .star path{fill:var(--off-fill);stroke:var(--off-stroke);stroke-width:3;stroke-linejoin:round;transition:fill .2s ease,stroke .2s ease;}
+  .star text{fill:var(--off-num);font-family:'Cinzel',Georgia,serif;font-weight:700;font-size:24px;text-anchor:middle;transition:fill .2s ease;}
+  .star.on path{fill:url(#gold);stroke:var(--on-stroke);filter:drop-shadow(0 0 6px var(--glow));}
+  .star.on text{fill:var(--on-num);}
+  .star.on{animation:pop .3s ease;}
+  @keyframes pop{50%{transform:scale(1.18);}}
+  .result{font-size:1.15rem;min-height:1.6rem;color:var(--muted);}
+  .result b{color:var(--text);font-size:1.5rem;}
+  .reset{
+    font-family:inherit;font-weight:700;letter-spacing:.05em;
+    background:transparent;color:var(--muted);
+    border:1px solid var(--off-stroke);border-radius:12px;
+    padding:.6rem 1.2rem;cursor:pointer;
+  }
+  .reset:hover{color:var(--text);}
+  @media (prefers-reduced-motion: reduce){.star,.star.on{animation:none;transition:none;}}
+</style>
+</head>
+<body>
+  <h1>¿Cuánto Lore le doy?</h1>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="var(--on-a)"/><stop offset="1" stop-color="var(--on-b)"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <div class="stars" id="stars"></div>
+  <div class="result" id="result">Toca un símbolo de tinta</div>
+  <button class="reset" id="reset">Borrar</button>
+
+<script>
+  const DROP = 'M50 4 C50 4 16 44 16 66 A34 34 0 0 0 84 66 C84 44 50 4 50 4 Z';
+  const box = document.getElementById('stars');
+  const result = document.getElementById('result');
+  let rating = 0;
+  let preview = 0;
+
+  for (let i = 1; i <= 10; i++) {
+    const b = document.createElement('button');
+    b.className = 'star';
+    b.setAttribute('aria-label', 'Puntuar con ' + i);
+    b.innerHTML = '<svg viewBox="0 0 100 100"><path d="' + DROP + '"/><text x="50" y="72">' + i + '</text></svg>';
+    b.addEventListener('click', () => { rating = (rating === i) ? 0 : i; preview = 0; render(); });
+    b.addEventListener('mouseenter', () => { preview = i; paint(); });
+    box.appendChild(b);
+  }
+  box.addEventListener('mouseleave', () => { preview = 0; paint(); });
+  document.getElementById('reset').addEventListener('click', () => { rating = 0; preview = 0; render(); });
+
+  function paint(){
+    const level = preview || rating;
+    [...box.children].forEach((b, idx) => b.classList.toggle('on', idx < level));
+  }
+  function render(){
+    paint();
+    result.innerHTML = rating ? 'Tu valoración: <b>' + rating + '</b> / 10' : 'Toca un símbolo de tinta';
+  }
+  render();
+</script>
+</body>
+</html>
